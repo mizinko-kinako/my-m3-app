@@ -1,59 +1,101 @@
 # MyM3App
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 20.3.4.
+このプロジェクトは [Angular CLI](https://github.com/angular/angular-cli) version 20.3.4 を使用して生成されました。
 
-## Development server
+## 開発サーバー
 
-To start a local development server, run:
+ローカル開発用サーバーを起動するには、次のコマンドを実行します:
 
 ```bash
 ng serve
 ```
 
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
+サーバーが起動したら、ブラウザで `http://localhost:4200/` を開いてください。ソースファイルを変更すると、アプリケーションは自動的にリロードされます。
 
-## Code scaffolding
+## コードの自動生成
 
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
+Angular CLIには、強力なコード自動生成ツールが含まれています。新しいコンポーネントを生成するには、次のコマンドを実行します:
 
 ```bash
 ng generate component component-name
 ```
 
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
+利用可能なschematics（`components`、`directives`、`pipes`など）の完全なリストについては、次のコマンドを実行してください:
 
 ```bash
 ng generate --help
 ```
 
-## Building
+## ビルド
 
-To build the project run:
+プロジェクトをビルドするには、次のコマンドを実行します:
 
 ```bash
 ng build
 ```
 
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
+これによりプロジェクトがコンパイルされ、ビルド成果物が `dist/` ディレクトリに格納されます。デフォルトでは、本番ビルドはパフォーマンスと速度のためにアプリケーションを最適化します。
 
-## Running unit tests
+## ユニットテストの実行
 
-To execute unit tests with the [Karma](https://karma-runner.github.io) test runner, use the following command:
+[Karma](https://karma-runner.github.io) テストランナーでユニットテストを実行するには、次のコマンドを使用します:
 
 ```bash
 ng test
 ```
 
-## Running end-to-end tests
+## E2Eテストの実行
 
-For end-to-end (e2e) testing, run:
+エンドツーエンド（E2E）テストを実行するには、次のコマンドを実行します:
 
 ```bash
 ng e2e
 ```
 
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
+Angular CLIには、デフォルトでエンドツーエンドのテストフレームワークは付属していません。ニーズに合ったものを選択できます。
 
-## Additional Resources
+## その他のリソース
 
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+Angular CLIの使用に関する詳細情報（詳細なコマンドリファレンスを含む）については、[Angular CLIの概要とコマンドリファレンス](https://angular.dev/tools/cli)ページをご覧ください。
+
+## Google Cloud Runへのデプロイ
+
+このアプリケーションをGoogle Cloud Runでホストするための手順です。
+
+1.  **アプリケーションのコンテナ化:**
+    この目的のために`Dockerfile`がプロジェクトのルートに作成されています。
+
+2.  **gcloud CLIのセットアップ:**
+    まだインストールしていない場合は、[Google Cloud CLI](https://cloud.google.com/sdk/docs/install) をインストールし、お使いのGoogleアカウントでログインしてください (`gcloud auth login`)。
+    次に、プロジェクトIDを設定します。
+    ```bash
+    gcloud config set project YOUR_PROJECT_ID
+    ```
+    `YOUR_PROJECT_ID` は実際のプロジェクトIDに置き換えてください。
+
+3.  **必要なAPIを有効にする:**
+    次のコマンドを実行して、Cloud Build, Artifact Registry, Cloud Run APIを有効にします。
+    ```bash
+    gcloud services enable run.googleapis.com artifactregistry.googleapis.com cloudbuild.googleapis.com
+    ```
+
+4.  **Artifact Registryリポジトリの作成:**
+    コンテナイメージを保存するためのリポジトリを作成します。
+    ```bash
+    gcloud artifacts repositories create my-m3-app-repo --repository-format=docker --location=asia-northeast1 --description="My M3 App repository"
+    ```
+    （`asia-northeast1` はお好きなリージョンに変更可能です）
+
+5.  **Cloud Buildでイメージをビルドしてプッシュ:**
+    次のコマンドを実行すると、Cloud Buildが `Dockerfile` を使ってイメージをビルドし、作成したArtifact Registryリポジトリにプッシュします。
+    ```bash
+    gcloud builds submit --tag asia-northeast1-docker.pkg.dev/YOUR_PROJECT_ID/my-m3-app-repo/my-m3-app .
+    ```
+    `YOUR_PROJECT_ID` を忘れずに置き換えてください。
+
+6.  **Cloud Runへのデプロイ:**
+    最後に、ビルドしたイメージをCloud Runにデプロイします。
+    ```bash
+    gcloud run deploy my-m3-app-service --image=asia-northeast1-docker.pkg.dev/YOUR_PROJECT_ID/my-m3-app-repo/my-m3-app --platform=managed --region=asia-northeast1 --allow-unauthenticated
+    ```
+    `--allow-unauthenticated` フラグにより、誰でもアクセスできる公開サービスとしてデプロイされます。認証が必要な場合は、このフラグを外してください。
