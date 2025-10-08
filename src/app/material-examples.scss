@@ -1,0 +1,26 @@
+.code-example {
+  background-color: #f5f5f5;
+  border: 1px solid #ccc;
+  padding: 10px;
+  margin-top: 10px;
+  position: relative;
+}
+
+.code-example h3 {
+  margin-top: 0;
+  margin-bottom: 5px;
+}
+
+.mat-card-content .code-example pre code {
+  background-color: #2d2d2d !important;
+  color: #f8f8f2 !important;
+  padding: 10px;
+  overflow-x: auto;
+  display: block; /* Ensure it takes full width */
+}
+
+.code-example button {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+}

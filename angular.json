@@ -32,11 +32,7 @@
             "styles": [
               "src/styles.scss"
             ],
-            "server": "src/main.server.ts",
-            "outputMode": "server",
-            "ssr": {
-              "entry": "src/server.ts"
-            }
+            "outputMode": "static"
           },
           "configurations": {
             "production": {
@@ -99,5 +95,8 @@
         }
       }
     }
+  },
+  "cli": {
+    "analytics": "8ae919cb-344c-43ec-99cc-674d5833f902"
   }
 }
