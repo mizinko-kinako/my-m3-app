@@ -73,7 +73,11 @@
       <section>
         <h2>Form field</h2>
         <mat-form-field appearance="fill">
-          <mat-label>Input</mat-label>
+          <mat-label>Input (Fill)</mat-label>
+          <input matInput>
+        </mat-form-field>
+        <mat-form-field appearance="outline" style="margin-left: 1rem;">
+          <mat-label>Input (Outline)</mat-label>
           <input matInput>
         </mat-form-field>
         <div class="code-example">
@@ -163,8 +167,14 @@
       <mat-divider></mat-divider>
       <section>
         <h2>Slider</h2>
+        <p>Standard Slider:</p>
         <mat-slider min="1" max="100" step="1" value="50">
           <input matSliderThumb>
+        </mat-slider>
+        <p>Range Slider:</p>
+        <mat-slider min="1" max="100" step="1">
+          <input matSliderStartThumb value="30">
+          <input matSliderEndThumb value="70">
         </mat-slider>
         <div class="code-example">
           <h3>HTML</h3>
@@ -264,6 +274,19 @@
           </mat-card-header>
           <mat-card-content>
             <p>This is card content.</p>
+          </mat-card-content>
+          <mat-card-actions>
+            <button mat-button>LIKE</button>
+            <button mat-button>SHARE</button>
+          </mat-card-actions>
+        </mat-card>
+        <mat-card appearance="outlined" style="margin-top: 1rem;">
+          <mat-card-header>
+            <mat-card-title>Outlined Card</mat-card-title>
+            <mat-card-subtitle>Card Subtitle</mat-card-subtitle>
+          </mat-card-header>
+          <mat-card-content>
+            <p>This is an outlined card.</p>
           </mat-card-content>
           <mat-card-actions>
             <button mat-button>LIKE</button>
@@ -458,6 +481,7 @@
         <button mat-raised-button>Raised</button>
         <button mat-stroked-button>Stroked</button>
         <button mat-flat-button>Flat</button>
+        <button mat-tonal-button>Tonal</button>
         <button mat-icon-button>
           <mat-icon>favorite</mat-icon>
         </button>
@@ -527,12 +551,23 @@
       <mat-divider></mat-divider>
       <section>
         <h2>Chips</h2>
-        <mat-chip-listbox aria-label="Fish selection">
-          <mat-chip-option>One fish</mat-chip-option>
-          <mat-chip-option>Two fish</mat-chip-option>
-          <mat-chip-option color="accent" selected>Accent fish</mat-chip-option>
-          <mat-chip-option color="warn">Warn fish</mat-chip-option>
-        </mat-chip-listbox>
+        <mat-form-field>
+          <mat-label>Keywords</mat-label>
+          <mat-chip-grid #chipGrid aria-label="Enter keywords">
+            @for (keyword of keywords(); track keyword) {
+              <mat-chip-row (removed)="remove(keyword)">
+                {{keyword}}
+                <button matChipRemove aria-label="'remove ' + keyword">
+                  <mat-icon>cancel</mat-icon>
+                </button>
+              </mat-chip-row>
+            }
+          </mat-chip-grid>
+          <input placeholder="New keyword..."
+                 [matChipInputFor]="chipGrid"
+                 [matChipInputSeparatorKeyCodes]="separatorKeysCodes"
+                 (matChipInputTokenEnd)="add($event)"/>
+        </mat-form-field>
         <div class="code-example">
           <h3>HTML</h3>
           <button mat-icon-button (click)="copyToClipboard(getRawHtmlCode('chips'))">

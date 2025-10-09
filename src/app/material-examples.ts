@@ -21,8 +21,9 @@ import { MatTabsModule } from '@angular/material/tabs';
 import { MatButtonModule } from '@angular/material/button';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { MatBadgeModule } from '@angular/material/badge';
-import { MatChipsModule } from '@angular/material/chips';
+import { MatChipsModule, MatChipInputEvent } from '@angular/material/chips';
 import { MatIconModule } from '@angular/material/icon';
+import { COMMA, ENTER } from '@angular/cdk/keycodes';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatBottomSheet, MatBottomSheetModule } from '@angular/material/bottom-sheet';
@@ -32,7 +33,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatPaginatorModule } from '@angular/material/paginator';
 import { MatSortModule } from '@angular/material/sort';
 import { MatTableModule } from '@angular/material/table';
-import { ReactiveFormsModule, FormsModule } from '@angular/forms';
+import { ReactiveFormsModule, FormsModule, FormControl } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { BottomSheetContentComponent } from './bottom-sheet-content';
 import { DialogContentComponent } from './dialog-content';
@@ -88,6 +89,31 @@ export class MaterialExamplesComponent implements OnInit, OnDestroy {
 
   progressValue = 0;
   private interval: any;
+
+  // For Input Chips
+  readonly separatorKeysCodes: number[] = [ENTER, COMMA];
+  keywords = signal(['angular', 'material', 'design']);
+  formControl = new FormControl(['angular']);
+
+  add(event: MatChipInputEvent): void {
+    const value = (event.value || '').trim();
+    if (value) {
+      this.keywords.update(keywords => [...keywords, value]);
+    }
+    event.chipInput!.clear();
+  }
+
+  remove(keyword: string): void {
+    this.keywords.update(keywords => {
+      const index = keywords.indexOf(keyword);
+      if (index >= 0) {
+        keywords.splice(index, 1);
+        return [...keywords];
+      }
+      return keywords;
+    });
+  }
+
 
   ngOnInit() {
     this.interval = setInterval(() => {
@@ -166,7 +192,12 @@ export class MaterialExamplesComponent implements OnInit, OnDestroy {
 </mat-form-field>`;
       case 'form-field':
         return `<mat-form-field appearance="fill">
-  <mat-label>Input</mat-label>
+  <mat-label>Input (Fill)</mat-label>
+  <input matInput>
+</mat-form-field>
+
+<mat-form-field appearance="outline">
+  <mat-label>Input (Outline)</mat-label>
   <input matInput>
 </mat-form-field>`;
       case 'input':
@@ -190,6 +221,11 @@ export class MaterialExamplesComponent implements OnInit, OnDestroy {
       case 'slider':
         return `<mat-slider min="1" max="100" step="1" value="50">
   <input matSliderThumb>
+</mat-slider>
+
+<mat-slider min="1" max="100" step="1">
+  <input matSliderStartThumb value="30">
+  <input matSliderEndThumb value="70">
 </mat-slider>`;
       case 'slide-toggle':
         return `<mat-slide-toggle>Slide me!</mat-slide-toggle>`;
@@ -211,6 +247,20 @@ export class MaterialExamplesComponent implements OnInit, OnDestroy {
   </mat-card-header>
   <mat-card-content>
     <p>This is card content.</p>
+  </mat-card-content>
+  <mat-card-actions>
+    <button mat-button>LIKE</button>
+    <button mat-button>SHARE</button>
+  </mat-card-actions>
+</mat-card>
+
+<mat-card appearance="outlined">
+  <mat-card-header>
+    <mat-card-title>Outlined Card</mat-card-title>
+    <mat-card-subtitle>Card Subtitle</mat-card-subtitle>
+  </mat-card-header>
+  <mat-card-content>
+    <p>This is an outlined card.</p>
   </mat-card-content>
   <mat-card-actions>
     <button mat-button>LIKE</button>
@@ -281,6 +331,7 @@ export class MaterialExamplesComponent implements OnInit, OnDestroy {
 <button mat-raised-button>Raised</button>
 <button mat-stroked-button>Stroked</button>
 <button mat-flat-button>Flat</button>
+<button mat-tonal-button>Tonal</button>
 <button mat-icon-button>
   <mat-icon>favorite</mat-icon>
 </button>
@@ -299,12 +350,46 @@ export class MaterialExamplesComponent implements OnInit, OnDestroy {
       case 'badge':
         return `<span matBadge="4" matBadgeOverlap="false">Text with a badge</span>`;
       case 'chips':
-        return `<mat-chip-listbox aria-label="Fish selection">
-  <mat-chip-option>One fish</mat-chip-option>
-  <mat-chip-option>Two fish</mat-chip-option>
-  <mat-chip-option color="accent" selected>Accent fish</mat-chip-option>
-  <mat-chip-option color="warn">Warn fish</mat-chip-option>
-</mat-chip-listbox>`;
+        return `<mat-form-field>
+  <mat-label>Keywords</mat-label>
+  <mat-chip-grid #chipGrid aria-label="Enter keywords">
+    @for (keyword of keywords(); track keyword) {
+      <mat-chip-row (removed)="remove(keyword)">
+        {{keyword}}
+        <button matChipRemove aria-label="'remove ' + keyword">
+          <mat-icon>cancel</mat-icon>
+        </button>
+      </mat-chip-row>
+    }
+  </mat-chip-grid>
+  <input placeholder="New keyword..."
+         [matChipInputFor]="chipGrid"
+         [matChipInputSeparatorKeyCodes]="separatorKeysCodes"
+         (matChipInputTokenEnd)="add($event)"/>
+</mat-form-field>`;
+
+      case 'chips':
+        return `readonly separatorKeysCodes: number[] = [ENTER, COMMA];
+keywords = signal(['angular', 'material', 'design']);
+
+add(event: MatChipInputEvent): void {
+  const value = (event.value || '').trim();
+  if (value) {
+    this.keywords.update(keywords => [...keywords, value]);
+  }
+  event.chipInput!.clear();
+}
+
+remove(keyword: string): void {
+  this.keywords.update(keywords => {
+    const index = keywords.indexOf(keyword);
+    if (index >= 0) {
+      keywords.splice(index, 1);
+      return [...keywords];
+    }
+    return keywords;
+  });
+}`;
       case 'icon':
         return `<mat-icon>home</mat-icon>`;
       case 'progress-spinner':
